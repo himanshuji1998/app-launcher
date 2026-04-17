@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Launcher</title>
+<style>
+  :root {
+    --bg: #0a0f1a;
+    --surface: #111827;
+    --card: #1a2235;
+    --card-hover: #1f2d42;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0f4ff;
+    --text2: #8a96b0;
+    --text3: #4a5568;
+    --accent: #3b82f6;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 52px;
+  }
+
+  .logo-ring {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 2px solid rgba(59,130,246,0.4);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+  }
+  .logo-ring::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid rgba(59,130,246,0.15);
+  }
+  .logo-dot {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-dot svg { width:14px; height:14px; fill:white; }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  h1 span { color: #3b82f6; }
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: var(--text2);
+    letter-spacing: 0.01em;
+  }
+
+  .search-wrap {
+    max-width: 380px;
+    margin: 28px auto 0;
+    position: relative;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    stroke: var(--text3);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+  #search {
+    width: 100%;
+    padding: 11px 16px 11px 42px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color .2s, background .2s;
+  }
+  #search::placeholder { color: var(--text3); }
+  #search:focus {
+    border-color: rgba(59,130,246,0.5);
+    background: var(--card-hover);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    transition: transform .2s cubic-bezier(.34,1.56,.64,1),
+                border-color .2s, background .2s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--c1), var(--c2));
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+  .card:hover::before { opacity: 1; }
+  .card:active { transform: translateY(-2px) scale(0.99); }
+
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    font-size: 22px;
+    background: var(--icon-bg);
+    border: 1px solid var(--icon-border);
+    position: relative;
+  }
+
+  .card-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .card-desc {
+    font-size: 0.82rem;
+    color: var(--text2);
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--badge-bg);
+    color: var(--badge-text);
+    border: 1px solid var(--badge-border);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .card-arrow {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border-hover);
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, border-color .2s, transform .2s;
+  }
+  .card:hover .card-arrow {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: translateX(2px);
+  }
+  .card-arrow svg {
+    width: 13px; height: 13px;
+    stroke: var(--text2);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transition: stroke .2s;
+  }
+  .card:hover .card-arrow svg { stroke: white; }
+
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+    font-size: 0.9rem;
+  }
+
+  .section-label {
+    max-width: 1100px;
+    margin: 0 auto 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding-left: 4px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 64px;
+    font-size: 0.78rem;
+    color: var(--text3);
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .card { animation: fadeUp .4s ease both; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-ring">
+    <div class="logo-dot">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+  </div>
+  <h1>All <span>Applications</span></h1>
+  <p class="subtitle">Select any app to launch it instantly</p>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Search apps..." oninput="filterCards()">
+  </div>
+</header>
+
+<div class="section-label" id="section-label">All Applications</div>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  Click any card to open the application &nbsp;·&nbsp; Press <kbd style="background:var(--card);border:1px solid var(--border);padding:1px 6px;border-radius:4px;font-size:0.75rem">Ctrl+K</kbd> to search
+</footer>
+
+<script>
+const apps = [
+  {
+    name: "ERP",
+    desc: "Enterprise Resource Planning",
+    url: "https://icsi.rexoerp.com/ics/login.action",
+    icon: "⚡",
+    category: "Operations",
+    c1: "#f59e0b", c2: "#ef4444",
+    iconBg: "rgba(245,158,11,0.12)",
+    iconBorder: "rgba(245,158,11,0.25)",
+    badgeBg: "rgba(245,158,11,0.1)",
+    badgeText: "#d97706",
+    badgeBorder: "rgba(245,158,11,0.2)",
+    badge: "ERP"
+  },
+  {
+    name: "LMS",
+    desc: "Learning Management System",
+    url: "https://icslms.rexoapp.com/login",
+    icon: "🗄️",
+    category: "Learning",
+    c1: "#3b82f6", c2: "#06b6d4",
+    iconBg: "rgba(59,130,246,0.12)",
+    iconBorder: "rgba(59,130,246,0.25)",
+    badgeBg: "rgba(59,130,246,0.1)",
+    badgeText: "#2563eb",
+    badgeBorder: "rgba(59,130,246,0.2)",
+    badge: "LMS"
+  },
+  {
+    name: "ITSM",
+    desc: "Ticket Tool Application",
+    url: "http://192.168.0.238:8078/",
+    icon: "📡",
+    category: "IT",
+    c1: "#10b981", c2: "#3b82f6",
+    iconBg: "rgba(16,185,129,0.12)",
+    iconBorder: "rgba(16,185,129,0.25)",
+    badgeBg: "rgba(16,185,129,0.1)",
+    badgeText: "#059669",
+    badgeBorder: "rgba(16,185,129,0.2)",
+    badge: "IT"
+  },
+  {
+    name: "MeetR",
+    desc: "Meeting Room Booking System",
+    url: "http://192.168.0.238:8098/",
+    icon: "📊",
+    category: "Operation",
+    c1: "#8b5cf6", c2: "#ec4899",
+    iconBg: "rgba(139,92,246,0.12)",
+    iconBorder: "rgba(139,92,246,0.25)",
+    badgeBg: "rgba(139,92,246,0.1)",
+    badgeText: "#7c3aed",
+    badgeBorder: "rgba(139,92,246,0.2)",
+    badge: "Meeting Room App"
+  },
+  {
+    name: "CMS",
+    desc: "Complaint Management System",
+    url: "http://192.168.0.238:8084/",
+    icon: "⚙️",
+    category: "QA",
+    c1: "#6b7280", c2: "#9ca3af",
+    iconBg: "rgba(107,114,128,0.12)",
+    iconBorder: "rgba(107,114,128,0.25)",
+    badgeBg: "rgba(107,114,128,0.1)",
+    badgeText: "#6b7280",
+    badgeBorder: "rgba(107,114,128,0.2)",
+    badge: "omplaint Log App"
+  },
+  {
+    name: "Digital Signature",
+    desc: "Digital Signature",
+    url: "https://yourapp6.com",
+    icon: "🚀",
+    category: "Other",
+    c1: "#f43f5e", c2: "#fb923c",
+    iconBg: "rgba(244,63,94,0.12)",
+    iconBorder: "rgba(244,63,94,0.25)",
+    badgeBg: "rgba(244,63,94,0.1)",
+    badgeText: "#e11d48",
+    badgeBorder: "rgba(244,63,94,0.2)",
+    badge: "IT"
+  }
+];
+
+function buildCard(app, i) {
+  const d = document.createElement('a');
+  d.className = 'card';
+  d.href = app.url;
+  d.target = '_blank';
+  d.rel = 'noopener noreferrer';
+  d.dataset.name = app.name.toLowerCase();
+  d.dataset.desc = app.desc.toLowerCase();
+  d.dataset.cat = app.category.toLowerCase();
+  d.style.cssText = `
+    --c1:${app.c1};--c2:${app.c2};
+    --icon-bg:${app.iconBg};--icon-border:${app.iconBorder};
+    --badge-bg:${app.badgeBg};--badge-text:${app.badgeText};--badge-border:${app.badgeBorder};
+    animation-delay:${i * 60}ms
+  `;
+  d.innerHTML = `
+    <div class="card-icon">${app.icon}</div>
+    <div class="card-name">${app.name}</div>
+    <div class="card-desc">${app.desc}</div>
+    <div class="card-footer">
+      <span class="card-badge">${app.badge}</span>
+      <div class="card-arrow">
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+  `;
+  return d;
+}
+
+const grid = document.getElementById('grid');
+const label = document.getElementById('section-label');
+
+function render(list) {
+  grid.innerHTML = '';
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty">No apps found. Try a different search.</div>';
+    return;
+  }
+  list.forEach((app, i) => grid.appendChild(buildCard(app, i)));
+}
+
+function filterCards() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  if (!q) { render(apps); label.textContent = 'All Applications'; return; }
+  const filtered = apps.filter(a =>
+    a.name.toLowerCase().includes(q) ||
+    a.desc.toLowerCase().includes(q) ||
+    a.category.toLowerCase().includes(q) ||
+    a.badge.toLowerCase().includes(q)
+  );
+  label.textContent = filtered.length
+    ? `${filtered.length} result${filtered.length > 1 ? 's' : ''} for "${q}"`
+    : 'No results';
+  render(filtered);
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('search').focus();
+  }
+});
+
+render(apps);
+</script>
+
+</body>
+</html>
